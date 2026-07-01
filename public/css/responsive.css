@@ -98,6 +98,8 @@
   .card-header:hover { background: transparent; }
   .task-row:hover { background: var(--bg); }
   .check-row:hover { background: transparent; }
+  .word-item:hover { border-color: var(--border); box-shadow: none; }
+  .review-word:hover { border-color: var(--border); background: var(--bg); color: var(--text-secondary); }
   .photo-del { opacity: 1; }
   .app-group:hover { box-shadow: none; }
 }

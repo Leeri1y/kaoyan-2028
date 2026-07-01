@@ -385,6 +385,7 @@ body {
 }
 /* ===== Word Flip Animation ===== */
 .word-item {
+  -webkit-perspective: 800px;
   perspective: 800px;
   cursor: pointer;
   min-height: 48px;
@@ -406,11 +407,14 @@ body {
   flex: 1;
   min-width: 0;
   flex-wrap: wrap;
+  transition: -webkit-transform 0.4s ease;
   transition: transform 0.4s ease;
+  -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
 }
-.word-item.flipped .word-flip { transform: rotateX(180deg); }
+.word-item.flipped .word-flip { -webkit-transform: rotateX(180deg); transform: rotateX(180deg); }
 .word-face {
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   display: flex;
   align-items: center;
@@ -421,6 +425,7 @@ body {
 .word-face-back {
   position: absolute;
   top: 0; left: 0; right: 0;
+  -webkit-transform: rotateX(180deg);
   transform: rotateX(180deg);
   padding: 10px 14px;
   font-size: 14px;
