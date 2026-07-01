@@ -33,37 +33,50 @@ const Resources = (() => {
   ];
 
   const FALLBACK_APPS = [
-    { name: '墨墨背单词', category: '英语单词', platform: 'iOS/Android', desc: '基于遗忘曲线科学安排复习' },
-    { name: '不背单词', category: '英语单词', platform: 'iOS/Android', desc: '语境中记单词，影视原声例句' },
-    { name: '欧陆词典', category: '英语单词', platform: 'iOS/Android', desc: '强大词典工具，可导入考研词汇' },
-    { name: '百词斩', category: '英语单词', platform: 'iOS/Android', desc: '图形记忆法，适合视觉型学习者' },
-    { name: 'China Daily', category: '英语阅读', platform: 'iOS/Android/Web', desc: '每日英文新闻，提升阅读速度' },
-    { name: '扇贝阅读', category: '英语阅读', platform: 'iOS/Android', desc: '英语外刊精读，考研题源文章' },
-    { name: '考研英语作文', category: '英语作文', platform: 'iOS/Android', desc: '作文模板+批改，覆盖大小作文' },
-    { name: 'Get写作', category: '英语作文', platform: 'iOS', desc: 'AI批改英语作文，语法纠错' },
-    { name: '番茄ToDo', category: '学习工具', platform: 'iOS/Android', desc: '番茄工作法计时，学霸模式防沉迷' },
-    { name: 'Forest', category: '学习工具', platform: 'iOS/Android', desc: '专注种树，戒掉手机依赖' },
-    { name: 'XMind', category: '学习工具', platform: 'iOS/Android/桌面', desc: '思维导图神器，整理知识框架' },
-    { name: 'Notion', category: '学习工具', platform: 'iOS/Android/Web', desc: '全能笔记+数据库+看板' },
-    { name: 'GoodNotes', category: '学习工具', platform: 'iOS', desc: '手写笔记首选，iPad刷题做笔记' },
-    { name: 'MarginNote', category: '学习工具', platform: 'iOS/Mac', desc: 'PDF阅读+笔记+脑图三合一' },
-    { name: 'Anki', category: '学习工具', platform: 'iOS/Android/桌面', desc: '间隔重复记忆，自制知识卡牌' },
-    { name: 'Obsidian', category: '学习工具', platform: 'iOS/Android/桌面', desc: '双向链接笔记，构建知识网络' },
-    { name: '百度网盘', category: '学习工具', platform: 'iOS/Android/Web', desc: '存储考研资料视频，倍速播放' },
-    { name: 'Bilibili', category: '视频课程', platform: 'iOS/Android/Web', desc: '海量考研课程免费看' },
-    { name: '中国大学MOOC', category: '视频课程', platform: 'iOS/Android/Web', desc: '名校公开课，补充专业课' },
-    { name: '考研帮', category: '考研资讯', platform: 'iOS/Android', desc: '院校资讯+经验贴+真题库' },
-    { name: '小红书', category: '考研资讯', platform: 'iOS/Android', desc: '考研经验帖、避坑指南' },
-    { name: '知乎', category: '考研资讯', platform: 'iOS/Android/Web', desc: '高分学长学姐经验分享' },
-    { name: '知网/万方', category: '考研资讯', platform: 'Web', desc: '查目标院校导师论文，了解方向' },
-    { name: '苍盾考研', category: '政治刷题', platform: 'iOS/Android', desc: '政治选择题刷题利器' },
-    { name: '小白考研', category: '政治刷题', platform: 'iOS/Android', desc: '政治刷题+时政汇总' },
-    { name: '滑记', category: '政治刷题', platform: 'iOS/Android', desc: '政治知识点卡片式记忆' },
-    { name: '数学公式', category: '数学工具', platform: 'iOS', desc: '高数公式手册，快速查阅' },
-    { name: 'Wolfram Alpha', category: '数学工具', platform: 'iOS/Android/Web', desc: '数学计算引擎，解微积分' },
-    { name: 'Desmos', category: '数学工具', platform: 'Web/iOS', desc: '函数图像绘制，理解概念' },
-    { name: 'AutoCAD Mobile', category: '专业课', platform: 'iOS/Android', desc: '查看工程图纸' },
-    { name: 'Multisim Live', category: '专业课', platform: 'Web', desc: '电路仿真工具' },
+    { cat: '英语', color: '#059669', bg: '#ecfdf5', icon: '📖', items: [
+      ['墨墨背单词', 'iOS/Android · 基于遗忘曲线科学安排复习，支持自定义词书'],
+      ['不背单词', 'iOS/Android · 语境中记单词，影视原声例句辅助记忆'],
+      ['欧陆词典', 'iOS/Android · 强大词典工具，可导入考研词汇库'],
+      ['百词斩', 'iOS/Android · 图形记忆法，适合视觉型学习者'],
+      ['China Daily', 'iOS/Android/Web · 每日英文新闻，提升阅读速度'],
+      ['扇贝阅读', 'iOS/Android · 英语外刊精读，覆盖考研题源文章'],
+      ['考研英语作文', 'iOS/Android · 作文模板+批改，覆盖大小作文题型'],
+    ]},
+    { cat: '数学', color: '#2563eb', bg: '#eff6ff', icon: '📐', items: [
+      ['帮帮考研/考研数学题库', 'iOS/Android · 章节练习+错题本，专项突破薄弱环节'],
+      ['Wolfram Alpha', 'iOS/Android/Web · 数学计算引擎，解微积分、线性代数'],
+      ['Desmos', 'Web/iOS · 函数图像绘制，直观理解数学概念'],
+      ['数学公式', 'iOS · 高数公式手册，快速查阅定理公式'],
+    ]},
+    { cat: '专业课', color: '#7c3aed', bg: '#f5f3ff', icon: '⚙️', items: [
+      ['Anki', 'iOS/Android/桌面 · 把自控原理公式、稳定判据做成卡片间隔复习'],
+      ['随身记/滑记', 'iOS/Android · 知识点卡片式记忆，专业课必备'],
+      ['B站搜"自动控制原理"', 'iOS/Android/Web · 卢京潮、西交大等名师公开课'],
+      ['小红书/知乎', 'iOS/Android/Web · 搜"864自动控制原理"找学长学姐经验'],
+    ]},
+    { cat: '政治', color: '#dc2626', bg: '#fef2f2', icon: '🏛️', items: [
+      ['苍盾考研', 'iOS/Android · 政治选择题刷题利器，碎片时间刷1000题'],
+      ['小白考研', 'iOS/Android · 政治刷题+时政汇总，冲刺期必备'],
+      ['肖秀荣密训App', 'iOS/Android · 跟随肖秀荣课程节奏刷题'],
+    ]},
+    { cat: '学习工具', color: '#d97706', bg: '#fffbeb', icon: '🛠️', items: [
+      ['番茄ToDo', 'iOS/Android · 番茄工作法计时，学霸模式锁机防沉迷'],
+      ['Forest', 'iOS/Android · 专注种树，长时间刷数学题时保持专注'],
+      ['XMind', 'iOS/Android/桌面 · 思维导图，整理知识框架和错题体系'],
+      ['Notion', 'iOS/Android/Web · 全能笔记+数据库+看板，管理考研全流程'],
+      ['GoodNotes', 'iOS · 手写笔记首选，iPad刷真题做笔记'],
+      ['MarginNote', 'iOS/Mac · PDF阅读+笔记+脑图三合一，精读教材'],
+      ['Obsidian', 'iOS/Android/桌面 · 双向链接笔记，构建专业知识网络'],
+      ['百度网盘', 'iOS/Android/Web · 存储考研资料视频，倍速播放'],
+    ]},
+    { cat: '视频课程', color: '#b91c1c', bg: '#fef2f2', icon: '🎬', items: [
+      ['Bilibili', 'iOS/Android/Web · 海量考研课程免费看，数学/政治/专业课全覆盖'],
+      ['中国大学MOOC', 'iOS/Android/Web · 名校公开课，补充专业课知识'],
+    ]},
+    { cat: '考研资讯', color: '#7c3aed', bg: '#f5f3ff', icon: '📬', items: [
+      ['考研帮', 'iOS/Android · 院校资讯+经验贴+真题库'],
+      ['知网/万方', 'Web · 查目标院校导师论文，了解研究方向'],
+    ]},
   ];
 
   async function init() {
@@ -146,26 +159,23 @@ const Resources = (() => {
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg>
         <span style="flex:1;font-size:14px;font-weight:600;color:var(--text)">App / 工具推荐</span>
       </div>
-      <div class="card-body">
-        <div class="app-grid">`;
-    const catColors = {
-      '政治刷题': { bg: '#fef2f2', text: '#b91c1c' },
-      '英语单词': { bg: '#ecfdf5', text: '#047857' },
-      '英语阅读': { bg: '#ecfdf5', text: '#047857' },
-      '英语作文': { bg: '#ecfdf5', text: '#047857' },
-      '数学工具': { bg: '#eff6ff', text: '#1d4ed8' },
-      '专业课': { bg: '#f5f3ff', text: '#6d28d9' },
-      '学习工具': { bg: '#fffbeb', text: '#92400e' },
-      '视频课程': { bg: '#fef2f2', text: '#b91c1c' },
-      '考研资讯': { bg: '#f5f3ff', text: '#6d28d9' },
-    };
-    _apps.forEach(a => {
-      const cc = catColors[a.category] || { bg: 'var(--bg)', text: 'var(--text-muted)' };
-      h += `<div class="app-card">
-        <span class="app-cat" style="background:${cc.bg};color:${cc.text}">${a.category}</span>
-        <div><span class="app-name">${Utils.esc(a.name)}</span><span class="app-platform">${a.platform}</span></div>
-        <div class="app-desc">${Utils.esc(a.desc)}</div>
-      </div>`;
+      <div class="card-body" style="padding:4px 16px 16px">
+        <div class="app-groups">`;
+    _apps.forEach(g => {
+      h += `<div class="app-group" style="border-left:3px solid ${g.color};background:${g.bg}">
+        <div class="app-group-hd">
+          <span>${g.icon}</span>
+          <span style="flex:1;font-size:13px;font-weight:600;color:${g.color}">${g.cat}</span>
+          <span style="font-size:11px;color:${g.color}99">${g.items.length}个</span>
+        </div>`;
+      g.items.forEach(it => {
+        const [name, desc] = it;
+        h += `<div class="app-g-item">
+          <span class="app-g-name">${Utils.esc(name)}</span>
+          <span class="app-g-desc">${Utils.esc(desc)}</span>
+        </div>`;
+      });
+      h += '</div>';
     });
     h += `</div></div></div>`;
 

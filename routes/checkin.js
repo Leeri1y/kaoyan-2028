@@ -57,7 +57,9 @@ router.get('/:date', (req, res) => {
 
     if (checkinId) {
       const savedTasks = db.prepare('SELECT task_id, done FROM checkin_tasks WHERE checkin_id = ?').all(checkinId);
-      savedTasks.forEach(t => { taskStates[t.task_id] = !!t.done; });
+      savedTasks.forEach(t => {
+        taskStates[t.task_id] = t.done === 1 || t.done === true;
+      });
     }
 
     res.json({
@@ -81,12 +83,14 @@ router.post('/:date', (req, res) => {
     let checkinId;
     if (existing) {
       checkinId = existing.id;
+      notes = typeof notes === 'string' ? notes.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') : '';
       db.prepare('UPDATE checkins SET notes=?, photo_urls=?, updated_at=datetime(\'now\',\'localtime\') WHERE id=?')
-        .run(notes || '', JSON.stringify(photoUrls || []), checkinId);
+        .run(notes, JSON.stringify(photoUrls || []), checkinId);
       db.prepare('DELETE FROM checkin_tasks WHERE checkin_id = ?').run(checkinId);
     } else {
+      notes = typeof notes === 'string' ? notes.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') : '';
       const result = db.prepare('INSERT INTO checkins (date, notes, photo_urls) VALUES (?, ?, ?)')
-        .run(date, notes || '', JSON.stringify(photoUrls || []));
+        .run(date, notes, JSON.stringify(photoUrls || []));
       checkinId = result.lastInsertRowid;
     }
 
@@ -96,7 +100,8 @@ router.post('/:date', (req, res) => {
       for (const t of taskList) {
         const ft = phaseTasks.find(pt => pt.id === t.id);
         if (ft) {
-          insertTask.run(checkinId, t.id, ft.subject, ft.label, t.done ? 1 : 0);
+          const doneVal = t.done === true || t.done === 1 ? 1 : 0;
+          insertTask.run(checkinId, t.id, ft.subject, ft.label, doneVal);
         }
       }
     });

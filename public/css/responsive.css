@@ -25,7 +25,7 @@
   .word-list { grid-template-columns: 1fr 1fr; }
   .word-item { padding: 12px 16px; }
   .word-ipa { font-size: 13px; }
-  .app-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
   .quote-text { font-size: 18px; }
   .stats-row { grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .stat-num { font-size: 28px; }
@@ -58,10 +58,13 @@
   .word-list { gap: 6px; }
   .word-en { font-size: 13px; }
   .word-ipa { font-size: 10px; }
-  .word-main { gap: 4px; }
+  .word-flip { gap: 4px; }
+  .word-face-back { font-size: 12px; padding: 8px 10px; }
+  .word-item { min-height: 40px; padding: 8px 10px; }
+  .review-word { font-size: 11px; padding: 3px 8px; }
   .quote-card { padding: 16px; }
   .quote-text { font-size: 14px; }
-  .app-grid { grid-template-columns: 1fr; }
+
   .btn { padding: 8px 18px; font-size: 12px; }
   .save-row { flex-direction: column; align-items: stretch; }
   .header-right .date-display { display: none; }
@@ -96,6 +99,7 @@
   .task-row:hover { background: var(--bg); }
   .check-row:hover { background: transparent; }
   .photo-del { opacity: 1; }
+  .app-group:hover { box-shadow: none; }
 }
 
 /* ===== Print ===== */

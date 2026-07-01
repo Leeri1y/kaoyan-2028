@@ -114,16 +114,16 @@ const Daily = (() => {
       const statusIcon = status === 'mastered' ? '★' : (status === 'learning' ? '⊙' : '☆');
       const statusColor = status === 'mastered' ? '#059669' : (status === 'learning' ? '#d69e2e' : '#d1d5db');
       const ipa = getIPA(w.word);
-      h += `<div class="word-item ${!revealed ? 'word-hidden' : 'word-revealed'}" onclick="Daily.toggleWord(${i})">
-        <div class="word-main">
-          <span class="word-en">${Utils.esc(w.word)}</span>
-          ${ipa ? `<span class="word-ipa">${ipa}</span>` : ''}
-          <span class="word-cn">${Utils.esc(w.meaning)}</span>
+      h += `<div class="word-item ${revealed ? 'flipped' : ''}" onclick="Daily.toggleWord(${i})">
+        <div class="word-flip">
+          <div class="word-face word-face-front">
+            <span class="word-en">${Utils.esc(w.word)}</span>
+            ${ipa ? `<span class="word-ipa">${ipa}</span>` : ''}
+            <span class="word-subject">${Utils.esc(w.subject)}</span>
+          </div>
+          <div class="word-face word-face-back">${Utils.esc(w.meaning)}</div>
         </div>
-        <div class="word-actions">
-          <span class="word-subject">${Utils.esc(w.subject)}</span>
-          <span class="word-star" onclick="event.stopPropagation();Daily.cycleMastery(${i})" style="color:${statusColor}" title="${status === 'mastered' ? '已掌握' : status === 'learning' ? '需复习' : '未标记'}">${statusIcon}</span>
-        </div>
+        <span class="word-star" onclick="event.stopPropagation();Daily.cycleMastery(${i})" style="color:${statusColor}" title="${status === 'mastered' ? '已掌握' : status === 'learning' ? '需复习' : '未标记'}">${statusIcon}</span>
       </div>`;
     });
     h += `</div></div></div>`;
@@ -142,15 +142,19 @@ const Daily = (() => {
         <div class="card-header" style="cursor:default">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
           <span style="flex:1;font-size:14px;font-weight:600;color:var(--text)">复习回顾</span>
-          <span style="font-size:12px;color:var(--text-muted)">近3天学过的词汇</span>
+          <span style="font-size:12px;color:var(--text-muted)">移入单词查看释义</span>
         </div>
         <div class="card-body">`;
       _reviews.forEach(r => {
-        h += `<div style="margin-bottom:12px">
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">${r.date}（${r.words.length}词）</div>
-          <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+        h += `<div style="margin-bottom:14px">
+          <div style="font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:8px;letter-spacing:0.03em">${r.date} · ${r.words.length} 词</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">`;
         r.words.forEach(w => {
-          h += `<span style="font-size:11px;padding:2px 8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text-secondary)">${Utils.esc(w.word)}</span>`;
+          const wipa = getIPA(w.word);
+          h += `<span class="review-word">
+            ${Utils.esc(w.word)}
+            <span class="review-tip">${Utils.esc(w.meaning)}${wipa ? ' ' + wipa : ''}</span>
+          </span>`;
         });
         h += `</div></div>`;
       });
@@ -175,20 +179,23 @@ const Daily = (() => {
     }
 
     const tips = [
-      { phase: '地基期 (7-12月)', content: '【重点】数学打基础（武忠祥/汤家凤基础课 + 课后习题），英语积累词汇（墨墨背单词 50个/天 + 阅读真题2篇/周）。政治暂不启动，专业课先下载广州大学085406大纲了解考试范围。' },
-      { phase: '强化期 (1-6月)', content: '【重点】数学专题强化（张宇/李永乐强化班 + 李永乐复习全书），专业课系统启动（自动控制原理教材精读 + 课后题）。英语每日30词 + 写作/翻译练习。' },
-      { phase: '冲刺期 (7-10月)', content: '【重点】全科真题精刷（数学计时2.5h，英语全题型140min），政治启动（肖秀荣精讲精练 + 1000题每天45min），专业课目标院校真题反复做。' },
-      { phase: '收尾期 (11-1月)', content: '【重点】政治大题背诵（肖四必背 + 腿姐背诵手册），数学模拟卷保手感，英语作文模板背诵，专业课回归真题。' }
+      { phase: '地基期', period: '7-12月', color: '#2563eb', bg: '#eff6ff', content: '数学打基础（武忠祥/汤家凤基础课 + 课后习题），英语积累词汇（墨墨背单词 50个/天 + 阅读真题2篇/周）。政治暂不启动，专业课先下载广州大学085406大纲了解考试范围。' },
+      { phase: '强化期', period: '1-6月', color: '#7c3aed', bg: '#f5f3ff', content: '数学专题强化（张宇/李永乐强化班 + 李永乐复习全书），专业课系统启动（自动控制原理教材精读 + 课后题）。英语每日30词 + 写作/翻译练习。' },
+      { phase: '冲刺期', period: '7-10月', color: '#d69e2e', bg: '#fffbeb', content: '全科真题精刷（数学计时2.5h，英语全题型140min），政治启动（肖秀荣精讲精练 + 1000题每天45min），专业课目标院校真题反复做。' },
+      { phase: '收尾期', period: '11-1月', color: '#dc2626', bg: '#fef2f2', content: '政治大题背诵（肖四必背 + 腿姐背诵手册），数学模拟卷保手感，英语作文模板背诵，专业课回归真题。' }
     ];
     h += `<div class="card" style="margin-top:4px">
       <div class="card-header" style="cursor:default">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span style="flex:1;font-size:14px;font-weight:600;color:var(--text)">各阶段复习重点与工具推荐</span>
+        <span style="flex:1;font-size:14px;font-weight:600;color:var(--text)">各阶段复习重点</span>
+        <span style="font-size:11px;color:var(--text-muted)">阶段复习策略</span>
       </div>
-      <div class="card-body" style="font-size:13px;color:var(--text-secondary);line-height:1.7">`;
+      <div class="card-body tips-section">`;
     tips.forEach(t => {
-      h += `<div style="padding:6px 0;border-bottom:1px solid var(--border)">
-        <strong style="color:var(--text)">${t.phase}</strong><br>${t.content}</div>`;
+      h += `<div class="tips-item">
+        <div class="tips-phase" style="background:${t.bg};color:${t.color}">${t.phase}<br><span style="font-weight:400;font-size:11px;opacity:0.7">${t.period}</span></div>
+        <div class="tips-content">${t.content}</div>
+      </div>`;
     });
     h += `</div></div>`;
 

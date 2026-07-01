@@ -39,6 +39,7 @@
   async function switchTab(tab) {
     if (!TABS.includes(tab)) return;
     _currentTab = tab;
+    localStorage.setItem('kaoyan-active-tab', tab);
 
     // Update tab buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -89,8 +90,9 @@
     updateHeader();
     setInterval(updateHeader, 60000);
 
-    // Load initial tab
-    switchTab('overview');
+    // Load last active tab (saves refresh position)
+    const savedTab = localStorage.getItem('kaoyan-active-tab') || 'overview';
+    switchTab(savedTab);
 
     // Expose to window for debugging
     window.App = { switchTab, showToast };
