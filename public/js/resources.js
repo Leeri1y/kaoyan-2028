@@ -83,7 +83,7 @@ const Resources = (() => {
     try {
       const [phases, apps] = await Promise.all([API.getPhases(), API.getApps()]);
       _phases = phases;
-      _apps = apps;
+      _apps = (apps && apps.length > 0 && Array.isArray(apps[0].items)) ? apps : FALLBACK_APPS;
     } catch (e) {
       _phases = FALLBACK_PHASES;
       _apps = FALLBACK_APPS;

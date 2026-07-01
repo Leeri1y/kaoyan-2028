@@ -147,14 +147,15 @@ const Overview = (() => {
     if (el) el.innerHTML = render();
   }
 
-  function init() {
-    _phases = FALLBACK_PHASES;
+  async function init() {
     const el = document.getElementById('panel-overview');
+    if (el) el.innerHTML = '<div class="loading-placeholder" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">加载阶段计划…</div>';
+    try {
+      _phases = await API.getPhases();
+    } catch (e) {
+      _phases = FALLBACK_PHASES;
+    }
     if (el) el.innerHTML = render();
-    API.getPhases().then(apiData => {
-      _phases = apiData;
-      if (el) el.innerHTML = render();
-    }).catch(() => {});
   }
 
   return { init, render, togglePhase };
