@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: kaoyan-2028
+    runtime: node
+    repo: https://github.com/Leeri1y/kaoyan-2028
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: API_PUBLIC_URL
+        value: https://kaoyan-2028.onrender.com
