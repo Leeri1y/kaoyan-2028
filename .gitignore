@@ -1,2 +1,4 @@
 node_modules/
 .env
+# 本地 SQLite 数据库（线上数据库在 Render 服务器独立运行）
+data/kaoyan.db
