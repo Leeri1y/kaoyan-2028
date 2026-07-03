@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const { getDB } = require('../db/database');
+const { dateSeed } = require('../utils/dateSeed');
 
 // Load word bank
 const wordsPath = path.join(__dirname, '..', 'data', 'words.json');
@@ -32,7 +33,7 @@ router.get('/today', (req, res) => {
   try {
     const { date } = req.query;
     const d = date || new Date().toISOString().slice(0, 10);
-    const seed = d.split('-').reduce((a, b) => a + parseInt(b), 0);
+    const seed = dateSeed(d);
     const words = getDailyWords(seed, 20);
     res.json({ date, words, total: words.length });
   } catch (err) {
@@ -50,7 +51,7 @@ router.get('/review', (req, res) => {
       const dt = new Date(d);
       dt.setDate(dt.getDate() - i);
       const ds = dt.toISOString().slice(0, 10);
-      const seed = ds.split('-').reduce((a, b) => a + parseInt(b), 0);
+      const seed = dateSeed(ds);
       const words = getDailyWords(seed, 20);
       results.push({ date: ds, words });
     }

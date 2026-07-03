@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+const { dateSeed } = require('../utils/dateSeed');
 
 const quotesPath = path.join(__dirname, '..', 'data', 'quotes.json');
 const QUOTES = JSON.parse(fs.readFileSync(quotesPath, 'utf-8'));
@@ -16,7 +17,7 @@ router.get('/today', (req, res) => {
   try {
     const { date } = req.query;
     const d = date || new Date().toISOString().slice(0, 10);
-    const seed = d.split('-').reduce((a, b) => a + parseInt(b), 0);
+    const seed = dateSeed(d);
     const quote = getDailyQuote(seed);
     res.json({ date, quote });
   } catch (err) {

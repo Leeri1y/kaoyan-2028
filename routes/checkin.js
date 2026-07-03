@@ -1,46 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { getDB } = require('../db/database');
+const { phaseForDate, buildPhaseTasks } = require('../data/plan-phases');
 
-const PHASE_TASKS = {
-  1: [
-    { id:'p1m1', subject:'数学', label:'听课/复习 1小时（武忠祥/汤家凤）' },
-    { id:'p1m2', subject:'数学', label:'课后习题练习' },
-    { id:'p1e1', subject:'英语', label:'背单词 50个（墨墨背单词）' },
-    { id:'p1e2', subject:'英语', label:'阅读真题 2篇（张剑黄皮书）' },
-  ],
-  2: [
-    { id:'p2m1', subject:'数学', label:'专题强化 1.5小时（计时完成）' },
-    { id:'p2m2', subject:'数学', label:'周模块练习题（每周至少1次）' },
-    { id:'p2e1', subject:'英语', label:'背单词 30个' },
-    { id:'p2e2', subject:'英语', label:'写作/翻译练习（2周1篇大作文）' },
-    { id:'p2z1', subject:'专业课', label:'教材精读 1章节' },
-    { id:'p2z2', subject:'专业课', label:'课后题 + 对应真题章节' },
-  ],
-  3: [
-    { id:'p3m1', subject:'数学', label:'历年真题 1套（计时 2.5h）' },
-    { id:'p3m2', subject:'数学', label:'错题复盘（3天后重做）' },
-    { id:'p3e1', subject:'英语', label:'全题型模拟（计时 140分钟）' },
-    { id:'p3z1', subject:'专业课', label:'目标校真题训练' },
-    { id:'p3z2', subject:'专业课', label:'弱点章节补漏' },
-    { id:'p3p1', subject:'政治', label:'肖秀荣精讲精练 45分钟' },
-  ],
-  4: [
-    { id:'p4m1', subject:'数学', label:'模拟卷保手感（李永乐6套/张宇4套）' },
-    { id:'p4e1', subject:'英语', label:'大作文范文背诵（每天1篇）' },
-    { id:'p4z1', subject:'专业课', label:'真题 + 模拟卷冲刺' },
-    { id:'p4p1', subject:'政治', label:'肖四大题答题框架背诵' },
-    { id:'p4p2', subject:'政治', label:'1000题二刷（选择题部分）' },
-  ],
-};
-
-function phaseForDate(d) {
-  const dt = new Date(d);
-  if (dt < new Date('2027-01-01')) return 1;
-  if (dt < new Date('2027-07-01')) return 2;
-  if (dt < new Date('2027-11-01')) return 3;
-  return 4;
-}
+// 任务清单现在统一从 data/plan-phases.js 读取，不再在这里单独维护一份
+const PHASE_TASKS = buildPhaseTasks();
 
 router.get('/:date', (req, res) => {
   try {
@@ -116,6 +80,10 @@ router.post('/:date', (req, res) => {
 router.get('/:date/history', (req, res) => {
   try {
     const { date } = req.params;
+    // 修复：这里之前漏了 const db = getDB()，直接引用了一个不存在的全局
+    // 变量 db，导致该接口每次都会抛 ReferenceError（500），"近30天打卡记录"
+    // 板块实际上一直是空的。
+    const db = getDB();
     const dt = new Date(date);
     const start = new Date(dt);
     start.setDate(start.getDate() - 30);
