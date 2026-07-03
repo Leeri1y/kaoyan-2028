@@ -62,6 +62,20 @@ function initSchema() {
       date TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now','localtime'))
     );
+
+    CREATE TABLE IF NOT EXISTS word_mastery (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      word_key TEXT NOT NULL UNIQUE,
+      status TEXT NOT NULL DEFAULT 'new',
+      updated_at TEXT DEFAULT (datetime('now','localtime'))
+    );
+
+    CREATE TABLE IF NOT EXISTS syllabus_progress (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chapter INTEGER NOT NULL UNIQUE,
+      done INTEGER DEFAULT 0,
+      updated_at TEXT DEFAULT (datetime('now','localtime'))
+    );
   `);
   console.log('数据库表初始化完成');
 }

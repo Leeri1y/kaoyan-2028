@@ -433,7 +433,6 @@ body {
   line-height: 1.5;
 }
 
-.word-ipa { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
 .word-main { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; flex-wrap: wrap; }
 .word-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .word-star { cursor: pointer; font-size: 18px; transition: transform 0.2s; }

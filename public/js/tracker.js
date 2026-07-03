@@ -388,15 +388,8 @@ const Tracker = (() => {
   function init() {
     _selDate = Utils.getToday();
     ensureLightbox();
-    // ★ 先用空数据立即渲染，用户看到界面
-    _phaseId = Utils.phaseForDate(_selDate);
-    _phaseTasks = [];
-    _taskState = {};
-    _notes = '';
-    _photoUrls = [];
     const el = document.getElementById('panel-tracker');
-    if (el) { el.innerHTML = render(); bindEvents(); }
-    // ★ 然后异步加载数据（6s超时），成功后刷新（不await，不阻塞switchTab）
+    if (el) { el.innerHTML = '<div class="loading-placeholder" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">加载打卡数据…</div>'; }
     Promise.all([loadData(), loadUploads()]).then(() => {
       if (el) { el.innerHTML = render(); bindEvents(); }
     });

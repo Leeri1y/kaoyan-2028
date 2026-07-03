@@ -29,6 +29,7 @@ app.use('/api/words', require('./routes/words'));
 app.use('/api/quotes', require('./routes/quotes'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/plan', require('./routes/plan'));
+app.use('/api/sync', require('./routes/sync'));
 
 // Health check
 app.get('/api/health', (req, res) => {

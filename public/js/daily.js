@@ -10,22 +10,23 @@ const Daily = (() => {
 
   function loadMastery() {
     try { _wordMastery = JSON.parse(localStorage.getItem('kaoyan-word-master') || '{}'); } catch (e) { _wordMastery = {}; }
+    API.getMastery().then(data => {
+      if (data && typeof data === 'object') {
+        Object.assign(_wordMastery, data);
+        localStorage.setItem('kaoyan-word-master', JSON.stringify(_wordMastery));
+      }
+    }).catch(() => {});
   }
-  function saveMastery() { localStorage.setItem('kaoyan-word-master', JSON.stringify(_wordMastery)); }
+  function saveMastery() {
+    localStorage.setItem('kaoyan-word-master', JSON.stringify(_wordMastery));
+    API.saveMastery(_wordMastery).catch(() => {});
+  }
   function getMasteryKey(word) { return word.word + '_' + (word.meaning || ''); }
 
   function markWord(word, status) {
     const key = getMasteryKey(word);
     _wordMastery[key] = status;
     saveMastery();
-  }
-
-  // 获取单词音标
-  function getIPA(w) {
-    if (typeof IPA_DICT !== 'undefined' && IPA_DICT.get) {
-      return IPA_DICT.get(w.toLowerCase());
-    }
-    return '';
   }
 
   // 掌握单词在复习中出现概率降低: mastered 10%, learning 50%, new 100%
@@ -41,16 +42,8 @@ const Daily = (() => {
     _selDate = Utils.getToday();
     _wordRevealed = {};
     loadMastery();
-    _quote = { text: '日拱一卒，功不唐捐。', source: '考研语录' };
-    _words = [
-      { word: 'persevere', meaning: 'v. 坚持；坚韧', subject: '核心词汇' },
-      { word: 'endeavor', meaning: 'v./n. 努力；尝试', subject: '核心词汇' },
-      { word: 'diligent', meaning: 'adj. 勤奋的', subject: '核心词汇' },
-      { word: 'aspire', meaning: 'v. 渴望；立志', subject: '核心词汇' },
-      { word: 'strive', meaning: 'v. 努力；奋斗', subject: '核心词汇' }
-    ];
     const el = document.getElementById('panel-daily');
-    if (el) { el.innerHTML = render(); bindEvents(); }
+    if (el) { el.innerHTML = '<div class="loading-placeholder" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">加载每日学习…</div>'; }
     Promise.allSettled([
       API.getTodayQuote(_selDate),
       API.getTodayWords(_selDate),
@@ -58,11 +51,11 @@ const Daily = (() => {
       API.getWordBank(),
       API.getApps()
     ]).then(([quoteRes, wordsRes, reviewsRes, bankRes, appsRes]) => {
-      if (quoteRes.status === 'fulfilled') _quote = quoteRes.value.quote;
-      if (wordsRes.status === 'fulfilled') _words = wordsRes.value.words;
-      if (reviewsRes.status === 'fulfilled') _reviews = reviewsRes.value;
-      if (bankRes.status === 'fulfilled') _wordBank = bankRes.value;
-      if (appsRes.status === 'fulfilled') _apps = appsRes.value;
+      _quote = quoteRes.status === 'fulfilled' ? quoteRes.value.quote : { text: '日拱一卒，功不唐捐。', source: '考研语录' };
+      _words = wordsRes.status === 'fulfilled' ? wordsRes.value.words : [];
+      _reviews = reviewsRes.status === 'fulfilled' ? reviewsRes.value : [];
+      _wordBank = bankRes.status === 'fulfilled' ? bankRes.value : {};
+      _apps = appsRes.status === 'fulfilled' ? appsRes.value : [];
       if (el) { el.innerHTML = render(); bindEvents(); }
     });
   }
@@ -113,12 +106,10 @@ const Daily = (() => {
       const status = _wordMastery[key] || 'new';
       const statusIcon = status === 'mastered' ? '★' : (status === 'learning' ? '⊙' : '☆');
       const statusColor = status === 'mastered' ? '#059669' : (status === 'learning' ? '#d69e2e' : '#d1d5db');
-      const ipa = getIPA(w.word);
       h += `<div class="word-item ${revealed ? 'flipped' : ''}" onclick="Daily.toggleWord(${i})">
         <div class="word-flip">
           <div class="word-face word-face-front">
-            <span class="word-en">${Utils.esc(w.word)}</span>
-            ${ipa ? `<span class="word-ipa">${ipa}</span>` : ''}
+            <span class="word-en" title="${Utils.esc(w.phonetic || '')}">${Utils.esc(w.word)}</span>
             <span class="word-subject">${Utils.esc(w.subject)}</span>
           </div>
           <div class="word-face word-face-back">${Utils.esc(w.meaning)}</div>
@@ -150,10 +141,9 @@ const Daily = (() => {
           <div style="font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:8px;letter-spacing:0.03em">${r.date} · ${r.words.length} 词</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">`;
         r.words.forEach(w => {
-          const wipa = getIPA(w.word);
           h += `<span class="review-word">
             ${Utils.esc(w.word)}
-            <span class="review-tip">${Utils.esc(w.meaning)}${wipa ? ' ' + wipa : ''}</span>
+            <span class="review-tip">${Utils.esc(w.meaning)}${w.phonetic ? ' ' + w.phonetic : ''}</span>
           </span>`;
         });
         h += `</div></div>`;

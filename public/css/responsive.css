@@ -24,7 +24,7 @@
   .tab-label { font-size: 15px; }
   .word-list { grid-template-columns: 1fr 1fr; }
   .word-item { padding: 12px 16px; }
-  .word-ipa { font-size: 13px; }
+
 
   .quote-text { font-size: 18px; }
   .stats-row { grid-template-columns: repeat(4, 1fr); gap: 14px; }
@@ -57,7 +57,7 @@
   .stat-num, .stat-number { font-size: 18px; }
   .word-list { gap: 6px; }
   .word-en { font-size: 13px; }
-  .word-ipa { font-size: 10px; }
+
   .word-flip { gap: 4px; }
   .word-face-back { font-size: 12px; padding: 8px 10px; }
   .word-item { min-height: 40px; padding: 8px 10px; }

@@ -22,10 +22,17 @@ const Syllabus = (() => {
     try {
       _progress = JSON.parse(localStorage.getItem('kaoyan-syllabus-progress') || '{}');
     } catch (e) { _progress = {}; }
+    API.getSyllabusProgress().then(data => {
+      if (data && typeof data === 'object') {
+        Object.assign(_progress, data);
+        localStorage.setItem('kaoyan-syllabus-progress', JSON.stringify(_progress));
+      }
+    }).catch(() => {});
   }
 
   function saveProgress() {
     localStorage.setItem('kaoyan-syllabus-progress', JSON.stringify(_progress));
+    API.saveSyllabusProgress(_progress).catch(() => {});
   }
 
   function toggleChap(ch) {

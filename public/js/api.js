@@ -42,5 +42,9 @@ const API = (() => {
     getApps: () => request('GET', '/plan/apps'),
     getCurrent: () => request('GET', '/plan/current'),
     getSyllabus: () => request('GET', '/plan/syllabus'),
+    getMastery: () => request('GET', '/sync/mastery'),
+    saveMastery: (data) => request('POST', '/sync/mastery', data),
+    getSyllabusProgress: () => request('GET', '/sync/syllabus'),
+    saveSyllabusProgress: (data) => request('POST', '/sync/syllabus', data),
   };
 })();
