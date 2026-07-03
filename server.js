@@ -77,3 +77,10 @@ app.listen(PORT, () => {
     console.log(`公网地址: ${process.env.API_PUBLIC_URL}`);
   }
 });
+
+// 放在其他路由和静态文件中间件之前，确保优先匹配
+app.get('/12b01c2fcfad015a5a626ea1530cbdfd.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  // 引号内严格复制内容，末尾不要加回车、空格
+  res.status(200).send('550998a891f0c14cfe23f498137477c46858b3b2');
+});
