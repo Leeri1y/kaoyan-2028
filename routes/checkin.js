@@ -75,7 +75,7 @@ router.get('/:date', (req, res) => {
 router.post('/:date', (req, res) => {
   try {
     const { date } = req.params;
-    const { tasks, notes, photoUrls } = req.body;
+    let { tasks, notes, photoUrls } = req.body;
     const db = getDB();
     const phase = phaseForDate(date);
 
