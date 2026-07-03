@@ -46,10 +46,6 @@
       btn.classList.toggle('active', btn.dataset.tab === tab);
     });
 
-    // ★ 清空目标面板旧内容，防止切换时闪现旧页面脏数据
-    const panel = document.getElementById('panel-' + tab);
-    if (panel) panel.innerHTML = '';
-
     // Show/hide panels
     document.querySelectorAll('.tab-panel').forEach(p => {
       p.classList.toggle('active', p.id === 'panel-' + tab);

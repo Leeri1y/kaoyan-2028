@@ -20,13 +20,10 @@ const Daily = (() => {
     saveMastery();
   }
 
-  // 获取单词音标：优先使用 words.json 中的 phonetic 字段，后备使用 ipa.js 词典
+  // 获取单词音标
   function getIPA(w) {
-    // w 可能是字符串（单词）或对象（含 phonetic 字段）
-    if (typeof w === 'object' && w && w.phonetic) return w.phonetic;
-    const word = typeof w === 'string' ? w : (w && w.word ? w.word : '');
     if (typeof IPA_DICT !== 'undefined' && IPA_DICT.get) {
-      return IPA_DICT.get(word.toLowerCase());
+      return IPA_DICT.get(w.toLowerCase());
     }
     return '';
   }
@@ -106,7 +103,7 @@ const Daily = (() => {
       <div class="card-header" style="cursor:default">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         <span style="flex:1;font-size:14px;font-weight:600;color:var(--text)">今日考研词汇</span>
-        <span style="font-size:11px;color:var(--text-muted);font-weight:400">悬停显示音标 · 点击切换释义 · ⭐标记掌握程度</span>
+        <span style="font-size:11px;color:var(--text-muted);font-weight:400">点击单词切换释义 / ⭐标记掌握程度</span>
       </div>
       <div class="card-body">
         <div class="word-list">`;
@@ -116,7 +113,7 @@ const Daily = (() => {
       const status = _wordMastery[key] || 'new';
       const statusIcon = status === 'mastered' ? '★' : (status === 'learning' ? '⊙' : '☆');
       const statusColor = status === 'mastered' ? '#059669' : (status === 'learning' ? '#d69e2e' : '#d1d5db');
-      const ipa = getIPA(w);
+      const ipa = getIPA(w.word);
       h += `<div class="word-item ${revealed ? 'flipped' : ''}" onclick="Daily.toggleWord(${i})">
         <div class="word-flip">
           <div class="word-face word-face-front">
@@ -153,7 +150,7 @@ const Daily = (() => {
           <div style="font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:8px;letter-spacing:0.03em">${r.date} · ${r.words.length} 词</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">`;
         r.words.forEach(w => {
-          const wipa = getIPA(w);
+          const wipa = getIPA(w.word);
           h += `<span class="review-word">
             ${Utils.esc(w.word)}
             <span class="review-tip">${Utils.esc(w.meaning)}${wipa ? ' ' + wipa : ''}</span>
