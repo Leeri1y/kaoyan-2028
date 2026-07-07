@@ -1,44 +1,46 @@
 /* ===== CSS Variables ===== */
 :root {
-  --primary: #1a365d;
-  --primary-light: #2a4a7f;
-  --primary-dark: #0f2440;
-  --accent: #d69e2e;
-  --accent-light: #f6e05e;
-  --bg: #f7f8fa;
+  /* 主色系：从饱和藏青改为更克制的墨灰蓝，减少"塑料感" */
+  --primary: #2c3e50;
+  --primary-light: #3d5266;
+  --primary-dark: #1f2d38;
+  --accent: #a17f4a;
+  --accent-light: #c9ad6e;
+  --bg: #f9f9f8;
   --surface: #ffffff;
-  --surface-hover: #f0f2f5;
-  --border: #e2e6ed;
-  --border-strong: #c5cbd5;
-  --text: #1a202c;
-  --text-secondary: #4a5568;
-  --text-muted: #8896ab;
+  --surface-hover: #f2f2f1;
+  --border: #e7e5e2;
+  --border-strong: #d4d1cb;
+  --text: #23262b;
+  --text-secondary: #565a5f;
+  --text-muted: #97968f;
   --radius: 10px;
   --radius-sm: 6px;
   --radius-lg: 16px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  /* 阴影更浅、更贴近纸面，减少悬浮感带来的观感 */
+  --shadow: 0 1px 2px rgba(20,20,18,0.04);
+  --shadow-md: 0 2px 8px rgba(20,20,18,0.06);
+  --shadow-lg: 0 6px 20px rgba(20,20,18,0.08);
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --font-mono: 'SF Mono', 'Fira Code', monospace;
   --transition: 0.2s ease;
 
   /* Subject colors */
-  --math: #2563eb;
-  --math-bg: #eff6ff;
-  --math-text: #1d4ed8;
-  --eng: #059669;
-  --eng-bg: #ecfdf5;
-  --eng-text: #047857;
-  --major: #7c3aed;
-  --major-bg: #f5f3ff;
-  --major-text: #6d28d9;
-  --poli: #dc2626;
-  --poli-bg: #fef2f2;
-  --poli-text: #b91c1c;
-  --retest: #eda100;
-  --retest-bg: #faeeda;
-  --retest-text: #a5720a;
+  --math: #3d5a80;
+  --math-bg: #eef1f5;
+  --math-text: #2f4763;
+  --eng: #4f7a68;
+  --eng-bg: #eef3f0;
+  --eng-text: #3d6152;
+  --major: #6b5b7e;
+  --major-bg: #f0edf2;
+  --major-text: #564865;
+  --poli: #a15353;
+  --poli-bg: #f5eeee;
+  --poli-text: #7d3f3f;
+  --retest: #a17f4a;
+  --retest-bg: #f4ede1;
+  --retest-text: #7a6039;
 }
 
 /* ===== Reset ===== */
@@ -263,7 +265,7 @@ body {
   font-family: var(--font-sans); line-height: 1.6;
   overflow: hidden; transition: border-color 0.15s;
 }
-.notes-area:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,54,93,0.1); }
+.notes-area:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(44,62,80,0.1); }
 .save-row {
   display: flex; align-items: center; gap: 14px;
   margin-top: 16px; flex-wrap: wrap;
@@ -320,8 +322,8 @@ body {
   cursor: pointer; transition: all var(--transition);
   margin-bottom: 10px;
 }
-.upload-area:hover { border-color: var(--primary); background: rgba(26,54,93,0.03); }
-.upload-area.dragover { border-color: var(--primary); background: rgba(26,54,93,0.06); }
+.upload-area:hover { border-color: var(--primary); background: rgba(44,62,80,0.03); }
+.upload-area.dragover { border-color: var(--primary); background: rgba(44,62,80,0.06); }
 .upload-icon { font-size: 28px; color: var(--text-muted); margin-bottom: 6px; }
 .upload-text { font-size: 13px; color: var(--text-muted); }
 .photo-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
@@ -340,7 +342,7 @@ body {
   border: none; opacity: 0.85; transition: opacity var(--transition);
   line-height: 1; z-index: 2;
 }
-.photo-del:hover { opacity: 1; background: #dc2626; }
+.photo-del:hover { opacity: 1; background: #a15353; }
 .photo-item:hover .photo-del { opacity: 1; }
 
 /* ===== Daily Section ===== */
@@ -455,8 +457,8 @@ body {
 }
 .review-word:hover {
   border-color: var(--accent);
-  background: #fffbeb;
-  color: #92400e;
+  background: #f8f5ee;
+  color: #6b552f;
 }
 .review-word .review-tip {
   visibility: hidden;
@@ -575,13 +577,13 @@ body {
 
 /* ===== Study Plan Tips ===== */
 .plan-tip {
-  background: linear-gradient(135deg, #fffbeb, #fef3c7);
-  border: 1px solid #fcd34d;
+  background: linear-gradient(135deg, #f8f5ee, #f4ede1);
+  border: 1px solid #d8c69a;
   border-radius: var(--radius);
   padding: 14px 16px;
   margin-bottom: 14px;
 }
-.plan-tip-title { font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 4px; }
+.plan-tip-title { font-size: 13px; font-weight: 600; color: #6b552f; margin-bottom: 4px; }
 .plan-tip-text { font-size: 12px; color: #a16207; line-height: 1.5; }
 
 /* ===== Syllabus ===== */
@@ -656,8 +658,8 @@ body {
 }
 .save-indicator.idle { color: var(--text-muted); }
 .save-indicator.saving { color: var(--text-muted); }
-.save-indicator.saved { color: #059669; }
-.save-indicator.error { color: #dc2626; }
+.save-indicator.saved { color: #4f7a68; }
+.save-indicator.error { color: #a15353; }
 .save-indicator .spinner {
   display: inline-block;
   width: 12px;
@@ -672,7 +674,7 @@ body {
 /* ===== Note auto-save hint ===== */
 .notes-area.saving {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(214,158,46,0.1);
+  box-shadow: 0 0 0 3px rgba(161,127,74,0.1);
 }
 
 /* ===== Enhanced Animations ===== */
@@ -744,16 +746,16 @@ body {
 .date-row input[type=date]:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(26,54,93,0.1);
+  box-shadow: 0 0 0 3px rgba(44,62,80,0.1);
 }
 
 /* ===== Save row subtle enhancement ===== */
 .save-row .btn-primary {
-  box-shadow: 0 2px 6px rgba(26,54,93,0.15);
+  box-shadow: 0 2px 6px rgba(44,62,80,0.15);
 }
 .save-row .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(26,54,93,0.2);
+  box-shadow: 0 4px 12px rgba(44,62,80,0.2);
 }
 .save-row .btn-primary:active {
   transform: translateY(0);
@@ -831,7 +833,7 @@ body {
   background: var(--surface); color: var(--text-secondary); font-size: 12px;
   font-weight: 500; cursor: pointer; font-family: var(--font-sans); transition: all 0.2s;
 }
-.btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: rgba(26,54,93,0.03); }
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: rgba(44,62,80,0.03); }
 .photo-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .photo-item {
   width: 72px; height: 72px; border-radius: 8px; overflow: hidden;
@@ -860,12 +862,12 @@ body {
   background: var(--surface); color: var(--text);
   transition: border-color 0.2s, box-shadow 0.2s; overflow: hidden;
 }
-.tk-note:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,54,93,0.08); }
+.tk-note:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(44,62,80,0.08); }
 .tk-note::placeholder { color: var(--text-muted); }
 
 /* Actions */
 .tk-actions { display: flex; align-items: center; gap: 12px; padding: 2px 0; }
-.tk-badge { font-size: 13px; font-weight: 600; color: #d69e2e; display: flex; align-items: center; gap: 5px; }
+.tk-badge { font-size: 13px; font-weight: 600; color: #a17f4a; display: flex; align-items: center; gap: 5px; }
 
 /* History */
 .tk-history { padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; }

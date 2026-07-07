@@ -13,8 +13,8 @@ const Tracker = (() => {
   let _isSaving = false;
 
   const PHASE_NAMES = ['','地基期','强化期','冲刺期','收尾期'];
-  const PHASE_COLORS = ['','#2563eb','#7c3aed','#d69e2e','#dc2626'];
-  const PHASE_BGS = ['','#eff6ff','#f5f3ff','#fffbeb','#fef2f2'];
+  const PHASE_COLORS = ['','#3d5a80','#6b5b7e','#a17f4a','#a15353'];
+  const PHASE_BGS = ['','#eef1f5','#f0edf2','#f8f5ee','#f5eeee'];
 
   // ============ 数据加载 ============
   async function loadData() {
@@ -40,9 +40,12 @@ const Tracker = (() => {
     try {
       const base = window.API_BASE || '';
       const uploads = await API.getUploads(_selDate);
+      // 照片现在存在 Postgres 里，通过 /api/upload/file/:id 动态取回，
+      // 不再是本地磁盘上的静态文件路径。
+      const tokenQuery = window.APP_TOKEN ? `?t=${encodeURIComponent(window.APP_TOKEN)}` : '';
       _photoUrls = uploads.map(u => ({
         id: u.id,
-        url: `${base}/uploads/${u.filename}`,
+        url: `${base}/api/upload/file/${u.id}${tokenQuery}`,
         name: u.original_name
       }));
     } catch (e) { _photoUrls = []; }
@@ -330,7 +333,7 @@ const Tracker = (() => {
         <div class="tk-history">`;
       _history.forEach(hh => {
         h += `<div class="tk-h-item">
-          <span class="tk-h-dot" style="background:${hh.notes ? '#059669' : '#d1d5db'}"></span>
+          <span class="tk-h-dot" style="background:${hh.notes ? '#4f7a68' : '#d1d5db'}"></span>
           <span class="tk-h-date">${hh.date}</span>
           <span class="tk-h-note">${hh.notes ? Utils.esc(hh.notes) : '已打卡'}</span>
         </div>`;

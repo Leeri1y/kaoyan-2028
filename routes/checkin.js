@@ -3,24 +3,27 @@ const router = express.Router();
 const { getDB } = require('../db/database');
 const { phaseForDate, buildPhaseTasks } = require('../data/plan-phases');
 
-// 任务清单现在统一从 data/plan-phases.js 读取，不再在这里单独维护一份
+// 任务清单统一从 data/plan-phases.js 读取
 const PHASE_TASKS = buildPhaseTasks();
 
-router.get('/:date', (req, res) => {
+router.get('/:date', async (req, res) => {
   try {
     const { date } = req.params;
-    const db = getDB();
+    const db = await getDB();
     const phase = phaseForDate(date);
     const tasks = PHASE_TASKS[phase] || [];
 
-    const row = db.prepare('SELECT * FROM checkins WHERE date = ?').get(date);
+    const { rows: checkinRows } = await db.query('SELECT * FROM checkins WHERE date = $1', [date]);
+    const row = checkinRows[0];
     let checkinId = row ? row.id : null;
     let notes = row ? row.notes : '';
     let photoUrls = row ? JSON.parse(row.photo_urls || '[]') : [];
     let taskStates = {};
 
     if (checkinId) {
-      const savedTasks = db.prepare('SELECT task_id, done FROM checkin_tasks WHERE checkin_id = ?').all(checkinId);
+      const { rows: savedTasks } = await db.query(
+        'SELECT task_id, done FROM checkin_tasks WHERE checkin_id = $1', [checkinId]
+      );
       savedTasks.forEach(t => {
         taskStates[t.task_id] = t.done === 1 || t.done === true;
       });
@@ -36,62 +39,69 @@ router.get('/:date', (req, res) => {
   }
 });
 
-router.post('/:date', (req, res) => {
+router.post('/:date', async (req, res) => {
+  const db = await getDB();
+  const client = await db.connect();
   try {
     const { date } = req.params;
     let { tasks, notes, photoUrls } = req.body;
-    const db = getDB();
     const phase = phaseForDate(date);
+    notes = typeof notes === 'string' ? notes.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') : '';
 
-    let existing = db.prepare('SELECT id FROM checkins WHERE date = ?').get(date);
+    await client.query('BEGIN');
+
+    const { rows: existingRows } = await client.query('SELECT id FROM checkins WHERE date = $1', [date]);
     let checkinId;
-    if (existing) {
-      checkinId = existing.id;
-      notes = typeof notes === 'string' ? notes.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') : '';
-      db.prepare('UPDATE checkins SET notes=?, photo_urls=?, updated_at=datetime(\'now\',\'localtime\') WHERE id=?')
-        .run(notes, JSON.stringify(photoUrls || []), checkinId);
-      db.prepare('DELETE FROM checkin_tasks WHERE checkin_id = ?').run(checkinId);
+    if (existingRows.length) {
+      checkinId = existingRows[0].id;
+      await client.query(
+        `UPDATE checkins SET notes=$1, photo_urls=$2, updated_at=NOW() WHERE id=$3`,
+        [notes, JSON.stringify(photoUrls || []), checkinId]
+      );
+      await client.query('DELETE FROM checkin_tasks WHERE checkin_id = $1', [checkinId]);
     } else {
-      notes = typeof notes === 'string' ? notes.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') : '';
-      const result = db.prepare('INSERT INTO checkins (date, notes, photo_urls) VALUES (?, ?, ?)')
-        .run(date, notes, JSON.stringify(photoUrls || []));
-      checkinId = result.lastInsertRowid;
+      const { rows } = await client.query(
+        'INSERT INTO checkins (date, notes, photo_urls) VALUES ($1, $2, $3) RETURNING id',
+        [date, notes, JSON.stringify(photoUrls || [])]
+      );
+      checkinId = rows[0].id;
     }
 
     const phaseTasks = PHASE_TASKS[phase] || [];
-    const insertTask = db.prepare('INSERT INTO checkin_tasks (checkin_id, task_id, subject, label, done) VALUES (?, ?, ?, ?, ?)');
-    const insertMany = db.transaction((taskList) => {
-      for (const t of taskList) {
-        const ft = phaseTasks.find(pt => pt.id === t.id);
-        if (ft) {
-          const doneVal = t.done === true || t.done === 1 ? 1 : 0;
-          insertTask.run(checkinId, t.id, ft.subject, ft.label, doneVal);
-        }
+    for (const t of (tasks || [])) {
+      const ft = phaseTasks.find(pt => pt.id === t.id);
+      if (ft) {
+        const doneVal = (t.done === true || t.done === 1) ? 1 : 0;
+        await client.query(
+          'INSERT INTO checkin_tasks (checkin_id, task_id, subject, label, done) VALUES ($1, $2, $3, $4, $5)',
+          [checkinId, t.id, ft.subject, ft.label, doneVal]
+        );
       }
-    });
-    insertMany(tasks || []);
+    }
 
+    await client.query('COMMIT');
     res.json({ success: true, message: '保存成功 ✓' });
   } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
     res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
   }
 });
 
-router.get('/:date/history', (req, res) => {
+router.get('/:date/history', async (req, res) => {
   try {
     const { date } = req.params;
-    // 修复：这里之前漏了 const db = getDB()，直接引用了一个不存在的全局
-    // 变量 db，导致该接口每次都会抛 ReferenceError（500），"近30天打卡记录"
-    // 板块实际上一直是空的。
-    const db = getDB();
+    const db = await getDB();
     const dt = new Date(date);
     const start = new Date(dt);
     start.setDate(start.getDate() - 30);
     const startStr = start.toISOString().slice(0, 10);
 
-    const rows = db.prepare(
-      'SELECT date, notes FROM checkins WHERE date BETWEEN ? AND ? ORDER BY date'
-    ).all(startStr, date);
+    const { rows } = await db.query(
+      'SELECT date, notes FROM checkins WHERE date BETWEEN $1 AND $2 ORDER BY date',
+      [startStr, date]
+    );
 
     res.json(rows);
   } catch (err) {

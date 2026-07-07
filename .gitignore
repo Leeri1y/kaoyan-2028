@@ -1,5 +1,2 @@
 node_modules/
 .env
-data/kaoyan.db
-data/kaoyan.db-shm
-data/kaoyan.db-wal

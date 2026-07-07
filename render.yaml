@@ -1,3 +1,9 @@
+databases:
+  - name: kaoyan-2028-db
+    plan: free
+    databaseName: kaoyan2028
+    user: kaoyan2028
+
 services:
   - type: web
     name: kaoyan-2028
@@ -10,3 +16,9 @@ services:
     envVars:
       - key: API_PUBLIC_URL
         value: https://kaoyan-2028.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kaoyan-2028-db
+          property: connectionString
+      - key: APP_TOKEN
+        sync: false

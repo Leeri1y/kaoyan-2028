@@ -8,14 +8,20 @@ const Daily = (() => {
   let _wordRevealed = {};
   let _wordMastery = {};
 
-  function loadMastery() {
+  // 修复：之前这里是"发个请求就不管了"（fire-and-forget），init() 不会
+  // 等它回来就直接用 localStorage 的旧数据渲染了页面；就算服务器数据后来
+  // 到了，也从没再触发一次 render()，导致新开的浏览器/设备永远看不到已经
+  // 在别处标记过的单词状态，表现为"没有同步"。
+  // 现在改成返回一个 Promise，并且数据到达后主动刷新一次页面。
+  async function loadMastery() {
     try { _wordMastery = JSON.parse(localStorage.getItem('kaoyan-word-master') || '{}'); } catch (e) { _wordMastery = {}; }
-    API.getMastery().then(data => {
+    try {
+      const data = await API.getMastery();
       if (data && typeof data === 'object') {
         Object.assign(_wordMastery, data);
         localStorage.setItem('kaoyan-word-master', JSON.stringify(_wordMastery));
       }
-    }).catch(() => {});
+    } catch (e) { /* 拉取失败就先用本地缓存，不阻塞使用 */ }
   }
   function saveMastery() {
     localStorage.setItem('kaoyan-word-master', JSON.stringify(_wordMastery));
@@ -38,26 +44,27 @@ const Daily = (() => {
     return true;
   }
 
-  function init() {
+  async function init() {
     _selDate = Utils.getToday();
     _wordRevealed = {};
-    loadMastery();
     const el = document.getElementById('panel-daily');
     if (el) { el.innerHTML = '<div class="loading-placeholder" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">加载每日学习…</div>'; }
-    Promise.allSettled([
+    // 先等单词掌握状态从服务器同步回来，再做首次渲染，
+    // 这样不同浏览器/设备打开时看到的就是同一份最新状态
+    await loadMastery();
+    const [quoteRes, wordsRes, reviewsRes, bankRes, appsRes] = await Promise.allSettled([
       API.getTodayQuote(_selDate),
       API.getTodayWords(_selDate),
       API.getReviewWords(_selDate),
       API.getWordBank(),
       API.getApps()
-    ]).then(([quoteRes, wordsRes, reviewsRes, bankRes, appsRes]) => {
-      _quote = quoteRes.status === 'fulfilled' ? quoteRes.value.quote : { text: '日拱一卒，功不唐捐。', source: '考研语录' };
-      _words = wordsRes.status === 'fulfilled' ? wordsRes.value.words : [];
-      _reviews = reviewsRes.status === 'fulfilled' ? reviewsRes.value : [];
-      _wordBank = bankRes.status === 'fulfilled' ? bankRes.value : {};
-      _apps = appsRes.status === 'fulfilled' ? appsRes.value : [];
-      if (el) { el.innerHTML = render(); bindEvents(); }
-    });
+    ]);
+    _quote = quoteRes.status === 'fulfilled' ? quoteRes.value.quote : { text: '日拱一卒，功不唐捐。', source: '考研语录' };
+    _words = wordsRes.status === 'fulfilled' ? wordsRes.value.words : [];
+    _reviews = reviewsRes.status === 'fulfilled' ? reviewsRes.value : [];
+    _wordBank = bankRes.status === 'fulfilled' ? bankRes.value : {};
+    _apps = appsRes.status === 'fulfilled' ? appsRes.value : [];
+    if (el) { el.innerHTML = render(); bindEvents(); }
   }
 
   function render() {
@@ -83,11 +90,11 @@ const Daily = (() => {
         <div class="stat-label">词库总量</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" style="color:#059669">${masteredCount}</div>
+        <div class="stat-number" style="color:#4f7a68">${masteredCount}</div>
         <div class="stat-label">已掌握 ★</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" style="color:#d69e2e">${learningCount}</div>
+        <div class="stat-number" style="color:#a17f4a">${learningCount}</div>
         <div class="stat-label">需复习 ⊙</div>
       </div>
     </div>`;
@@ -105,7 +112,7 @@ const Daily = (() => {
       const key = getMasteryKey(w);
       const status = _wordMastery[key] || 'new';
       const statusIcon = status === 'mastered' ? '★' : (status === 'learning' ? '⊙' : '☆');
-      const statusColor = status === 'mastered' ? '#059669' : (status === 'learning' ? '#d69e2e' : '#d1d5db');
+      const statusColor = status === 'mastered' ? '#4f7a68' : (status === 'learning' ? '#a17f4a' : '#d1d5db');
       h += `<div class="word-item ${revealed ? 'flipped' : ''}" onclick="Daily.toggleWord(${i})">
         <div class="word-flip">
           <div class="word-face word-face-front">
@@ -155,7 +162,7 @@ const Daily = (() => {
     if (needReview.length > 0) {
       h += `<div class="card">
         <div class="card-header" style="cursor:default">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#d69e2e" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a17f4a" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           <span style="flex:1;font-size:14px;font-weight:600;color:var(--text)">我的待复习单词</span>
           <span style="font-size:12px;color:var(--text-muted)">${needReview.length} 个词需要巩固</span>
         </div>
@@ -163,16 +170,16 @@ const Daily = (() => {
           <div style="display:flex;flex-wrap:wrap;gap:4px">`;
       needReview.forEach(([key]) => {
         const [word] = key.split('_');
-        h += `<span style="font-size:12px;padding:4px 10px;background:#fffbeb;border:1px solid #fcd34d;border-radius:4px;color:#92400e">${Utils.esc(word)}</span>`;
+        h += `<span style="font-size:12px;padding:4px 10px;background:#f8f5ee;border:1px solid #d8c69a;border-radius:4px;color:#6b552f">${Utils.esc(word)}</span>`;
       });
       h += `</div></div></div>`;
     }
 
     const tips = [
-      { phase: '地基期', period: '7-12月', color: '#2563eb', bg: '#eff6ff', content: '数学打基础（武忠祥/汤家凤基础课 + 课后习题），英语积累词汇（墨墨背单词 50个/天 + 阅读真题2篇/周）。政治暂不启动，专业课先下载广州大学085406大纲了解考试范围。' },
-      { phase: '强化期', period: '1-6月', color: '#7c3aed', bg: '#f5f3ff', content: '数学专题强化（张宇/李永乐强化班 + 李永乐复习全书），专业课系统启动（自动控制原理教材精读 + 课后题）。英语每日30词 + 写作/翻译练习。' },
-      { phase: '冲刺期', period: '7-10月', color: '#d69e2e', bg: '#fffbeb', content: '全科真题精刷（数学计时2.5h，英语全题型140min），政治启动（肖秀荣精讲精练 + 1000题每天45min），专业课目标院校真题反复做。' },
-      { phase: '收尾期', period: '11-1月', color: '#dc2626', bg: '#fef2f2', content: '政治大题背诵（肖四必背 + 腿姐背诵手册），数学模拟卷保手感，英语作文模板背诵，专业课回归真题。' }
+      { phase: '地基期', period: '7-12月', color: '#3d5a80', bg: '#eef1f5', content: '数学打基础（武忠祥/汤家凤基础课 + 课后习题），英语积累词汇（墨墨背单词 30个/天，量少但求真记住 + 阅读真题2篇/周）。政治暂不启动，专业课先下载广州大学085406大纲了解考试范围。每周留1天弹性调休。' },
+      { phase: '强化期', period: '1-6月', color: '#6b5b7e', bg: '#f0edf2', content: '数学专题强化（张宇/李永乐强化班 + 李永乐复习全书），专业课系统启动（自动控制原理教材精读 + 课后题）。英语每日30词 + 写作/翻译练习。每4-6周做1次整套真题限时自测，尽早校准节奏。' },
+      { phase: '冲刺期', period: '7-10月', color: '#a17f4a', bg: '#f8f5ee', content: '全科真题精刷（数学计时2.5h，英语全题型140min），政治启动（肖秀荣精讲精练 + 1000题每天45min），专业课目标院校真题反复做。每周仍保留1天休息。' },
+      { phase: '收尾期', period: '11-1月', color: '#a15353', bg: '#f5eeee', content: '政治大题背诵（肖四必背 + 腿姐背诵手册），数学模拟卷保手感，英语作文模板背诵，专业课回归真题。考前3天可以完全放松，不必打卡。' }
     ];
     h += `<div class="card" style="margin-top:4px">
       <div class="card-header" style="cursor:default">

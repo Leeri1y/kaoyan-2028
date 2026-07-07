@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const { getDB } = require('../db/database');
 const { dateSeed } = require('../utils/dateSeed');
 
 // Load word bank

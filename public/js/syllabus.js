@@ -18,16 +18,19 @@ const Syllabus = (() => {
   let _exam = {};
   let _progress = {};
 
-  function loadProgress() {
+  // 同样修复：等服务器数据真正回来后再渲染，而不是先用本地缓存渲染、
+  // 服务器数据到了也不刷新页面
+  async function loadProgress() {
     try {
       _progress = JSON.parse(localStorage.getItem('kaoyan-syllabus-progress') || '{}');
     } catch (e) { _progress = {}; }
-    API.getSyllabusProgress().then(data => {
+    try {
+      const data = await API.getSyllabusProgress();
       if (data && typeof data === 'object') {
         Object.assign(_progress, data);
         localStorage.setItem('kaoyan-syllabus-progress', JSON.stringify(_progress));
       }
-    }).catch(() => {});
+    } catch (e) { /* 拉取失败就先用本地缓存 */ }
   }
 
   function saveProgress() {
@@ -43,7 +46,7 @@ const Syllabus = (() => {
   }
 
   async function init() {
-    loadProgress();
+    await loadProgress();
     try {
       const data = await API.getSyllabus();
       _syllabus = data.syllabus || FALLBACK_SYLLABUS;

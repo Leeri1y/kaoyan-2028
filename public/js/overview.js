@@ -1,45 +1,14 @@
 const Overview = (() => {
-  const COLORS = ['#2563eb', '#7c3aed', '#d69e2e', '#dc2626', '#6d28d9'];
-  const BGS = ['#eff6ff', '#f5f3ff', '#fffbeb', '#fef2f2', '#faeeda'];
-  const TEXTS = ['#1d4ed8', '#6d28d9', '#92400e', '#b91c1c', '#a5720a'];
+  const COLORS = ['#3d5a80', '#6b5b7e', '#a17f4a', '#a15353', '#564865'];
+  const BGS = ['#eef1f5', '#f0edf2', '#f8f5ee', '#f5eeee', '#f4ede1'];
+  const TEXTS = ['#2f4763', '#564865', '#6b552f', '#7d3f3f', '#7a6039'];
 
   let _phases = [];
   let _expandedPhase = 1;
-
-  const FALLBACK_PHASES = [
-    { id: 1, name: '地基期', period: '2027.7-12', months: 6, goal: '打牢基础', tip: '每天保证6-8小时学习，数学和英语是重点，专业课至少确定参考书目。政治暂不启动。', tasks: [
-      { s: '数学', l: '武忠祥基础课 + 高数上下册一轮课后习题，建立完整知识框架' },
-      { s: '英语', l: '墨墨背单词50个/天 + 田静长难句 + 阅读真题2篇/周' },
-      { s: '专业课', l: '下载广州大学085406考试大纲，确定参考书，精读教材第一章' }
-    ] },
-    { id: 2, name: '强化期', period: '2028.1-6', months: 6, goal: '全面强化', tip: '每天8-10小时，数学进入强化阶段，专业课系统学习，政治开始入门。', tasks: [
-      { s: '数学', l: '张宇强化班 + 李永乐复习全书 + 660题' },
-      { s: '英语', l: '每日30词 + 阅读真题精做4篇/周 + 翻译练习' },
-      { s: '专业课', l: '自动控制原理教材精读 + 课后习题全部做完' },
-      { s: '政治', l: '徐涛强化班 + 肖秀荣精讲精练通读一遍' }
-    ] },
-    { id: 3, name: '冲刺期', period: '2028.7-10', months: 4, goal: '真题冲刺', tip: '每天10-12小时，全科真题是核心，政治要开始背诵，专业课回归真题。', tasks: [
-      { s: '数学', l: '真题计时2.5h/套 + 李林6套卷 + 错题本反复看' },
-      { s: '英语', l: '全题型计时140min + 大小作文模板各5篇' },
-      { s: '专业课', l: '目标院校真题反复做3遍以上 + 公式默写' },
-      { s: '政治', l: '肖秀荣1000题每天45min + 腿姐背诵手册' }
-    ] },
-    { id: 4, name: '收尾期', period: '2028.11-考前', months: 2, goal: '查漏补缺', tip: '回归基础，调整作息，政治大题全力背诵，数学保持手感。', tasks: [
-      { s: '数学', l: '模拟卷隔天一套保手感 + 公式速记本' },
-      { s: '英语', l: '作文模板默写 + 真题单词快速回顾' },
-      { s: '专业课', l: '真题错题回顾 + 公式/概念默写' },
-      { s: '政治', l: '肖四必背 + 腿姐冲刺班 + 时政热点' }
-    ] },
-    { id: 5, name: '复试备考', period: '2029.1-3', months: 3, goal: '复试冲刺', tip: '初试后立即启动复试准备，C语言编程+计算机控制是重点，联系导师、准备面试。', tasks: [
-      { s: '专业课', l: 'C程序设计（谭浩强）教材+课后题全部过一遍' },
-      { s: '专业课', l: '计算机控制系统教材精读，重点：采样控制、数字PID' },
-      { s: '复试', l: '准备中英文自我介绍、研究计划、常见面试问题' },
-      { s: '复试', l: '联系导师、阅读导师论文、了解研究方向' }
-    ] }
-  ];
+  let _loadError = false;
 
   async function loadPhases() {
-    try { _phases = await API.getPhases(); } catch (e) { _phases = FALLBACK_PHASES; }
+    try { _phases = await API.getPhases(); _loadError = false; } catch (e) { _phases = []; _loadError = true; }
   }
 
   function renderBar(pid) {
@@ -131,6 +100,10 @@ const Overview = (() => {
   }
 
   function render() {
+    if (_loadError) {
+      return `<div class="info-box">暂时无法连接服务器，阶段计划加载失败。<br>
+        <span style="cursor:pointer;color:var(--primary);text-decoration:underline" onclick="Overview.init()">点击重试</span></div>`;
+    }
     if (!_phases.length) return '<div class="info-box">正在加载阶段计划…</div>';
     const pid = Utils.phaseForDate(Utils.getToday());
     let h = renderStats(pid);
@@ -150,11 +123,7 @@ const Overview = (() => {
   async function init() {
     const el = document.getElementById('panel-overview');
     if (el) el.innerHTML = '<div class="loading-placeholder" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">加载阶段计划…</div>';
-    try {
-      _phases = await API.getPhases();
-    } catch (e) {
-      _phases = FALLBACK_PHASES;
-    }
+    await loadPhases();
     if (el) el.innerHTML = render();
   }
 
