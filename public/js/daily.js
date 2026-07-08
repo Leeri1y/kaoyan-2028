@@ -2,6 +2,7 @@ const Daily = (() => {
   let _quote = { text: '', source: '' };
   let _words = [];
   let _reviews = [];
+  let _reviewExpanded = false;
   let _wordBank = {};
   let _apps = [];
   let _selDate = '';
@@ -160,6 +161,9 @@ const Daily = (() => {
 
     const needReview = Object.entries(_wordMastery).filter(([k, v]) => v === 'learning');
     if (needReview.length > 0) {
+      const COLLAPSE_LIMIT = 30;
+      const isLong = needReview.length > COLLAPSE_LIMIT;
+      const shown = (_reviewExpanded || !isLong) ? needReview : needReview.slice(0, COLLAPSE_LIMIT);
       h += `<div class="card">
         <div class="card-header" style="cursor:default">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a17f4a" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -167,16 +171,22 @@ const Daily = (() => {
           <span style="font-size:12px;color:var(--text-muted)">${needReview.length} 个词需要巩固</span>
         </div>
         <div class="card-body">
-          <div style="display:flex;flex-wrap:wrap;gap:4px">`;
-      needReview.forEach(([key]) => {
+          <div style="display:flex;flex-wrap:wrap;gap:4px;${isLong && !_reviewExpanded ? 'max-height:88px;overflow:hidden' : ''}">`;
+      shown.forEach(([key]) => {
         const [word] = key.split('_');
         h += `<span style="font-size:12px;padding:4px 10px;background:#f8f5ee;border:1px solid #d8c69a;border-radius:4px;color:#6b552f">${Utils.esc(word)}</span>`;
       });
-      h += `</div></div></div>`;
+      h += `</div>`;
+      if (isLong) {
+        h += `<div style="text-align:center;margin-top:8px">
+          <span style="font-size:12px;color:var(--primary);cursor:pointer;text-decoration:underline" onclick="Daily.toggleReviewExpand()">${_reviewExpanded ? '收起' : `展开全部（共 ${needReview.length} 个）`}</span>
+        </div>`;
+      }
+      h += `</div></div>`;
     }
 
     const tips = [
-      { phase: '地基期', period: '7-12月', color: '#3d5a80', bg: '#eef1f5', content: '数学打基础（武忠祥/汤家凤基础课 + 课后习题），英语积累词汇（墨墨背单词 30个/天，量少但求真记住 + 阅读真题2篇/周）。政治暂不启动，专业课先下载广州大学085406大纲了解考试范围。每周留1天弹性调休。' },
+      { phase: '地基期', period: '7-12月', color: '#3d5a80', bg: '#eef1f5', content: '数学打基础（武忠祥/汤家凤基础课 + 课后习题），英语积累词汇（墨墨背单词 30个/天，量少但求真记住 + 阅读真题2篇/周）。政治暂不启动。专业课这阶段就要开始建立控制理论的基本框架（胡寿松教材前3章 + B站零基础先导课，隔天30-45min），拉普拉斯变换等数学工具通信背景已经有，缺的是反馈系统的直觉。每周留1天弹性调休。' },
       { phase: '强化期', period: '1-6月', color: '#6b5b7e', bg: '#f0edf2', content: '数学专题强化（张宇/李永乐强化班 + 李永乐复习全书），专业课系统启动（自动控制原理教材精读 + 课后题）。英语每日30词 + 写作/翻译练习。每4-6周做1次整套真题限时自测，尽早校准节奏。' },
       { phase: '冲刺期', period: '7-10月', color: '#a17f4a', bg: '#f8f5ee', content: '全科真题精刷（数学计时2.5h，英语全题型140min），政治启动（肖秀荣精讲精练 + 1000题每天45min），专业课目标院校真题反复做。每周仍保留1天休息。' },
       { phase: '收尾期', period: '11-1月', color: '#a15353', bg: '#f5eeee', content: '政治大题背诵（肖四必背 + 腿姐背诵手册），数学模拟卷保手感，英语作文模板背诵，专业课回归真题。考前3天可以完全放松，不必打卡。' }
@@ -216,7 +226,13 @@ const Daily = (() => {
     if (el) el.innerHTML = render();
   }
 
+  function toggleReviewExpand() {
+    _reviewExpanded = !_reviewExpanded;
+    const el = document.getElementById('panel-daily');
+    if (el) el.innerHTML = render();
+  }
+
   function bindEvents() {}
 
-  return { init, toggleWord, cycleMastery };
+  return { init, toggleWord, cycleMastery, toggleReviewExpand };
 })();
