@@ -1,9 +1,7 @@
-databases:
-  - name: kaoyan-2028-db
-    plan: free
-    databaseName: kaoyan2028
-    user: kaoyan2028
-
+# 数据库改用 Neon（免费永久，不像 Render 免费 Postgres 那样 30 天就过期）。
+# Neon 是外部服务，render.yaml 里没法像 Render 自带数据库那样自动创建/
+# 自动注入连接串，DATABASE_URL 需要手动去 Render 后台的 Environment 里配置，
+# 值填 Neon 项目给的连接串（在 neon.tech 控制台的 Connection string 里复制）。
 services:
   - type: web
     name: kaoyan-2028
@@ -17,8 +15,6 @@ services:
       - key: API_PUBLIC_URL
         value: https://kaoyan-2028.onrender.com
       - key: DATABASE_URL
-        fromDatabase:
-          name: kaoyan-2028-db
-          property: connectionString
+        sync: false
       - key: APP_TOKEN
         sync: false

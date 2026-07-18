@@ -26,9 +26,13 @@ function getPool() {
       connectionString,
       // Render 的 Postgres 外部连接需要 SSL；本地开发一般不需要，
       // 用 PGSSLMODE=disable 或者不设置 sslmode 参数即可跳过。
-      ssl: connectionString.includes('sslmode=require') || process.env.PGSSL === 'true'
-        ? { rejectUnauthorized: false }
-        : false,
+      // 云端托管的 Postgres（Neon、Render 等）基本都要求 SSL，即使连接串里
+      // 没写 sslmode 参数。之前只认 'sslmode=require' 字样，结果用 Render
+      // 的 External URL 做数据迁移时就因为漏判导致连接失败。这里改成
+      // "默认开，只有连本机 localhost 才关"，更不容易漏。
+      ssl: /localhost|127\.0\.0\.1/.test(connectionString) || process.env.PGSSL === 'false'
+        ? false
+        : { rejectUnauthorized: false },
     });
   }
   return pool;
